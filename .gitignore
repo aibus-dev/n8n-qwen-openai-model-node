@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+
+# local dev harness, not part of the published node
+chat-test.mjs

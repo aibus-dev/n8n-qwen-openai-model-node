@@ -1,6 +1,6 @@
 {
-	"name": "n8n-nodes-azbot-qwen-model",
-	"version": "0.1.0",
+	"name": "@aibus/n8n-nodes-qwen-model",
+	"version": "0.1.2",
 	"description": "n8n community node for a Qwen Cloud (DashScope) / OpenAI-compatible Chat Model with built-in JSON Schema structured output",
 	"license": "MIT",
 	"homepage": "https://github.com/aibus-dev/n8n-qwen-openai-model-node",
@@ -13,7 +13,10 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/aibus-dev/n8n-qwen-openai-model-node.git"
+		"url": "git+https://github.com/aibus-dev/n8n-qwen-openai-model-node.git"
+	},
+	"publishConfig": {
+		"access": "public"
 	},
 	"scripts": {
 		"build": "n8n-node build",
@@ -21,12 +24,18 @@
 		"dev": "n8n-node dev",
 		"lint": "n8n-node lint",
 		"lint:fix": "n8n-node lint --fix",
+		"test": "node --test tests/*.test.cjs",
 		"release": "n8n-node release",
 		"prepublishOnly": "n8n-node prerelease"
 	},
 	"files": [
 		"dist"
 	],
+	"dependencies": {
+		"@n8n/ai-node-sdk": "0.24.2",
+		"n8n-workflow": "2.34.2",
+		"zod": "3.25.76"
+	},
 	"n8n": {
 		"n8nNodesApiVersion": 1,
 		"aiNodeSdkVersion": 1,
@@ -44,9 +53,5 @@
 		"prettier": "3.6.2",
 		"release-it": "^19.0.4",
 		"typescript": "5.9.2"
-	},
-	"peerDependencies": {
-		"n8n-workflow": "*",
-		"@n8n/ai-node-sdk": "*"
 	}
 }

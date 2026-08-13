@@ -1,4 +1,4 @@
-# n8n-nodes-azbot-qwen-model
+# @aibus/n8n-nodes-qwen-model
 
 This is an n8n community node. It lets you use _app/service name_ in your n8n workflows.
 

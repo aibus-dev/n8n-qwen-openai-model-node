@@ -3,11 +3,7 @@ import { OpenAIChatModel, type OpenAIChatModelConfig, type RequestConfig } from 
 import { schemaToPromptDescription } from './schemaDescription';
 import { validateAgainstSchema } from './jsonSchemaValidate';
 
-export function parseStructuredOutputSchema(schemaInput: unknown): Record<string, unknown> {
-	return typeof schemaInput === 'string'
-		? (JSON.parse(schemaInput) as Record<string, unknown>)
-		: (schemaInput as Record<string, unknown>);
-}
+export { parseStructuredOutputSchema } from './structuredOutputSchema';
 
 function extractTextContent(content: MessageContent[]): string {
 	return content

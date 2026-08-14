@@ -3,14 +3,17 @@ const test = require('node:test');
 
 const packageJson = require('../package.json');
 
-test('@n8n/ai-node-sdk is installed as a runtime dependency', () => {
-	assert.equal(packageJson.dependencies?.['@n8n/ai-node-sdk'], '0.24.2');
+test('n8n host packages are declared as peer dependencies', () => {
+	assert.equal(packageJson.peerDependencies?.['n8n-workflow'], '*');
+	assert.equal(packageJson.peerDependencies?.['@n8n/ai-node-sdk'], '*');
 });
 
-test('n8n-workflow is isolated from older community-node versions', () => {
-	assert.equal(packageJson.dependencies?.['n8n-workflow'], '2.34.2');
+test('community package has no runtime dependencies', () => {
+	assert.deepEqual(packageJson.dependencies ?? {}, {});
 });
 
-test('Zod supports the v4 compatibility subpath used by n8n 2.34', () => {
-	assert.equal(packageJson.dependencies?.zod, '3.25.76');
+test('local development versions remain pinned', () => {
+	assert.equal(packageJson.devDependencies?.['@n8n/ai-node-sdk'], '0.24.2');
+	assert.equal(packageJson.devDependencies?.['n8n-workflow'], '2.34.2');
+	assert.equal(packageJson.devDependencies?.zod, '3.25.76');
 });

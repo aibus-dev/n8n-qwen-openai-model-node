@@ -28,7 +28,7 @@ export class QwenApi implements ICredentialType {
 			displayName: 'Base URL',
 			name: 'baseUrl',
 			type: 'string',
-			default: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+			default: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
 			required: true,
 			description: 'OpenAI-compatible endpoint for Qwen. Change this if you use a different gateway or a self-hosted deployment',
 		},

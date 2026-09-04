@@ -15,6 +15,8 @@ type ModelOptions = {
 	temperature?: number;
 	maxTokens?: number;
 	timeout?: number;
+	enableThinking?: boolean;
+	thinkingBudget?: number;
 	debug?: boolean;
 };
 
@@ -155,6 +157,8 @@ export class QwenChatModel implements INodeType {
 			temperature: options.temperature,
 			maxTokens: options.maxTokens,
 			timeout: options.timeout,
+			enableThinking: options.enableThinking,
+			thinkingBudget: options.thinkingBudget,
 			debug: options.debug,
 		};
 

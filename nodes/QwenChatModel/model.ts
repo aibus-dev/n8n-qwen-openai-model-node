@@ -66,6 +66,8 @@ interface OpenAIChatCompletionsRequest {
 	parallel_tool_calls?: boolean;
 	response_format?: ResponseFormatJsonSchema;
 	enable_search?: boolean;
+	enable_thinking?: boolean;
+	thinking_budget?: number;
 	stream?: boolean;
 	stream_options?: { include_usage: boolean };
 }
@@ -292,6 +294,16 @@ export interface OpenAIChatModelConfig extends ChatModelConfig {
 
 	providerTools?: ProviderTool[];
 
+	/**
+	 * Send `enable_thinking` on every request. Left `undefined` the field is
+	 * omitted and the model keeps its own default - which for hybrid models
+	 * (qwen-plus, qwen3-*) means thinking is on, and slow.
+	 */
+	enableThinking?: boolean;
+
+	/** Cap on thinking tokens; only meaningful while thinking is enabled. */
+	thinkingBudget?: number;
+
 	/** Echo the exact request and raw response back through `providerMetadata`. */
 	debug?: boolean;
 }
@@ -336,6 +348,20 @@ export class OpenAIChatModel extends BaseChatModel<OpenAIChatModelConfig> {
 		return providerTools.some((tool) => tool.type === 'provider' && tool.name === 'web_search');
 	}
 
+	/**
+	 * `mergeConfig` only knows the base config fields, so the Qwen-specific ones
+	 * are resolved by hand: per-call config first, then the node-level default.
+	 */
+	private getThinking(config?: OpenAIChatModelConfig): {
+		enableThinking?: boolean;
+		thinkingBudget?: number;
+	} {
+		return {
+			enableThinking: config?.enableThinking ?? this.defaultConfig?.enableThinking,
+			thinkingBudget: config?.thinkingBudget ?? this.defaultConfig?.thinkingBudget,
+		};
+	}
+
 	private buildRequestBody(
 		messages: Message[],
 		config: OpenAIChatModelConfig | undefined,
@@ -348,6 +374,7 @@ export class OpenAIChatModel extends BaseChatModel<OpenAIChatModelConfig> {
 		const merged = this.mergeConfig(config);
 		const chatMessages = genericMessagesToChatCompletionsInput(messages);
 		const tools = overrides.tools ?? this.getTools(config);
+		const { enableThinking, thinkingBudget } = this.getThinking(config);
 
 		return {
 			model: this.modelId,
@@ -361,6 +388,8 @@ export class OpenAIChatModel extends BaseChatModel<OpenAIChatModelConfig> {
 			frequency_penalty: merged.frequencyPenalty,
 			...(tools.length && { tools, parallel_tool_calls: true }),
 			...(this.getSearchFlag(config) && { enable_search: true }),
+			...(enableThinking !== undefined && { enable_thinking: enableThinking }),
+			...(enableThinking && thinkingBudget !== undefined && { thinking_budget: thinkingBudget }),
 			...(overrides.responseFormat && { response_format: overrides.responseFormat }),
 		};
 	}

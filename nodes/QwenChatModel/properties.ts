@@ -138,13 +138,20 @@ export const qwenChatModelProperties: INodeProperties[] = [
 		default: {},
 		options: [
 			{
-				displayName: 'Sampling Temperature',
-				name: 'temperature',
-				default: 0.7,
-				typeOptions: { maxValue: 2, minValue: 0, numberPrecision: 1 },
+				displayName: 'Enable Thinking',
+				name: 'enableThinking',
+				default: false,
 				description:
-					'Controls randomness: Lowering results in less random completions. As the temperature approaches zero, the model will become deterministic and repetitive.',
-				type: 'number',
+					'Whether to let the model reason before answering. Hybrid models (e.g. qwen-plus, qwen3-*) think by default, which is much slower - add this option and leave it off to disable it. Leave the option out entirely to keep the model\'s own default. Note: some models only accept thinking on streamed requests, and thinking-only models (e.g. qwen3-*-thinking) reject turning it off.',
+				type: 'boolean',
+			},
+			{
+				displayName: 'Include Request and Response',
+				name: 'debug',
+				default: false,
+				description:
+					'Whether to attach the exact request sent to the model (messages, tool definitions, parameters) and the raw response to this node\'s output, so they can be inspected in the log panel. Leave off in production: it makes every run store the full prompt.',
+				type: 'boolean',
 			},
 			{
 				displayName: 'Max Tokens',
@@ -155,20 +162,30 @@ export const qwenChatModelProperties: INodeProperties[] = [
 				type: 'number',
 			},
 			{
+				displayName: 'Sampling Temperature',
+				name: 'temperature',
+				default: 0.7,
+				typeOptions: { maxValue: 2, minValue: 0, numberPrecision: 1 },
+				description:
+					'Controls randomness: Lowering results in less random completions. As the temperature approaches zero, the model will become deterministic and repetitive.',
+				type: 'number',
+			},
+			{
+				displayName: 'Thinking Budget',
+				name: 'thinkingBudget',
+				default: 1024,
+				typeOptions: { minValue: 1 },
+				description:
+					'Maximum number of tokens the model may spend on thinking. Only applies when thinking is enabled.',
+				type: 'number',
+			},
+			{
 				displayName: 'Timeout',
 				name: 'timeout',
 				default: 60000,
 				typeOptions: { minValue: 1 },
 				description: 'Time in ms to wait for the API response before timing out',
 				type: 'number',
-			},
-			{
-				displayName: 'Include Request and Response',
-				name: 'debug',
-				default: false,
-				description:
-					'Whether to attach the exact request sent to the model (messages, tool definitions, parameters) and the raw response to this node\'s output, so they can be inspected in the log panel. Leave off in production: it makes every run store the full prompt.',
-				type: 'boolean',
 			},
 		],
 	},

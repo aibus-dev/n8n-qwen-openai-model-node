@@ -28,7 +28,11 @@ interface OpenAIFunctionToolDef {
 	};
 }
 
-type OpenAIToolChoice = 'auto' | 'required' | 'none' | { type: 'function'; function: { name: string } };
+type OpenAIToolChoice =
+	| 'auto'
+	| 'required'
+	| 'none'
+	| { type: 'function'; function: { name: string } };
 
 interface ChatCompletionsMessage {
 	role: 'system' | 'user' | 'assistant' | 'tool';
@@ -95,7 +99,11 @@ interface OpenAIChatCompletionsResponse {
 		prompt_tokens: number;
 		completion_tokens: number;
 		total_tokens: number;
-		prompt_tokens_details?: { cached_tokens?: number };
+		prompt_tokens_details?: {
+			cached_tokens?: number;
+			cache_creation_input_tokens?: number;
+			cache_type?: string;
+		};
 		completion_tokens_details?: { reasoning_tokens?: number };
 	};
 }
@@ -227,7 +235,9 @@ function genericToolToChatCompletionsTool(tool: Tool): OpenAIFunctionToolDef | n
 	};
 }
 
-function parseChatCompletionMessage(message: OpenAIChatCompletionsResponse['choices'][0]['message']): {
+function parseChatCompletionMessage(
+	message: OpenAIChatCompletionsResponse['choices'][0]['message'],
+): {
 	text: string;
 	toolCalls: ToolCall[];
 } {
@@ -271,6 +281,27 @@ function parseTokenUsage(
 				},
 			}
 		: undefined;
+}
+
+/**
+ * n8n's log panel only keeps prompt/completion token counts, dropping
+ * `inputTokenDetails.cacheRead`; surface prompt-cache stats via providerMetadata.
+ */
+function promptCacheMetadata(
+	usage: OpenAIChatCompletionsResponse['usage'] | undefined,
+): Record<string, unknown> | undefined {
+	if (!usage) return undefined;
+	const details = usage.prompt_tokens_details;
+	const cachedTokens = details?.cached_tokens ?? 0;
+	return {
+		promptTokens: usage.prompt_tokens ?? 0,
+		cachedTokens,
+		uncachedTokens: Math.max((usage.prompt_tokens ?? 0) - cachedTokens, 0),
+		...(details?.cache_creation_input_tokens !== undefined && {
+			cacheCreationTokens: details.cache_creation_input_tokens,
+		}),
+		...(details?.cache_type && { cacheType: details.cache_type }),
+	};
 }
 
 function mapFinishReason(finishReason: string | null): FinishReason {
@@ -425,6 +456,7 @@ export class OpenAIChatModel extends BaseChatModel<OpenAIChatModelConfig> {
 				created: body.created,
 				id: body.id,
 				finish_reason: choice.finish_reason,
+				...(body.usage && { promptCache: promptCacheMetadata(body.usage) }),
 			},
 		};
 	}

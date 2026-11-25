@@ -10,6 +10,7 @@ import { OpenAIChatModel, type RequestConfig } from './model';
 import { StructuredOutputChatModel, parseStructuredOutputSchema } from './structuredOutput';
 import { qwenChatModelProperties } from './properties';
 import { formatBuiltInTools } from './common';
+import { exposeMetadataInLogPanel } from './exposeMetadata';
 
 type ModelOptions = {
 	temperature?: number;
@@ -19,38 +20,6 @@ type ModelOptions = {
 	thinkingBudget?: number;
 	debug?: boolean;
 };
-
-/** Shape of the LangChain adapter `supplyModel` hands back, as far as we touch it. */
-type ChatAdapter = {
-	_generate: (...args: unknown[]) => Promise<{
-		generations: Array<{ message?: { response_metadata?: unknown }; [key: string]: unknown }>;
-	}>;
-	bindTools?: (tools: unknown[]) => ChatAdapter;
-};
-
-/**
- * n8n's tracing keeps only `text` and `generationInfo` from each generation, so
- * `providerMetadata` - which the adapter puts on the message - never reaches the
- * log panel. Copy it onto `generationInfo` so the request/response echo shows up
- * in the UI. `bindTools` returns a fresh adapter, so re-apply on each one.
- */
-function exposeMetadataInLogPanel(adapter: ChatAdapter): ChatAdapter {
-	const generate = adapter._generate.bind(adapter);
-	adapter._generate = async (...args: unknown[]) => {
-		const result = await generate(...args);
-		result.generations = result.generations.map((generation) => ({
-			...generation,
-			generationInfo: generation.message?.response_metadata,
-		}));
-		return result;
-	};
-
-	const bindTools = adapter.bindTools?.bind(adapter);
-	if (bindTools) {
-		adapter.bindTools = (tools: unknown[]) => exposeMetadataInLogPanel(bindTools(tools));
-	}
-	return adapter;
-}
 
 export class QwenChatModel implements INodeType {
 	description: INodeTypeDescription = {
@@ -180,7 +149,7 @@ export class QwenChatModel implements INodeType {
 		}
 
 		const supplied = supplyModel(this, model);
-		exposeMetadataInLogPanel(supplied.response as unknown as ChatAdapter);
+		exposeMetadataInLogPanel(supplied.response as object);
 		return supplied;
 	}
 }

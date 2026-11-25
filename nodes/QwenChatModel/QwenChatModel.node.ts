@@ -152,7 +152,6 @@ export class QwenChatModel implements INodeType {
 
 		const modelConfig = {
 			baseURL: credentials.baseUrl as string,
-			apiKey: credentials.apiKey as string,
 			providerTools,
 			temperature: options.temperature,
 			maxTokens: options.maxTokens,

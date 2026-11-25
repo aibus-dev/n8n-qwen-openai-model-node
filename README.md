@@ -38,7 +38,7 @@ Token usage: n8n's own tracing keeps only prompt/completion counts, so each gene
 - `usage`: the provider's raw usage (incl. `prompt_tokens_details.cached_tokens`, `completion_tokens_details.reasoning_tokens`), also on streamed responses;
 - `promptCache`: prompt-cache summary (`promptTokens`, `cachedTokens`, `uncachedTokens`, ...), non-streamed responses only.
 
-These are stored in the saved execution data, so tools reading executions (e.g. azbot-llm-router's agent token backfill) can price cached/reasoning tokens.
+These are stored in the saved execution data, so tools reading executions can price cached/reasoning tokens.
 
 ## Resources
 

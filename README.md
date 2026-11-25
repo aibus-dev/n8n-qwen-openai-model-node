@@ -32,9 +32,13 @@ _State the minimum n8n version, as well as which versions you test against. You 
 
 ## Usage
 
-_This is an optional section. Use it to help users with any difficult or confusing aspects of the node._
+Works with any OpenAI-compatible Chat Completions endpoint (Qwen DashScope by default; set the credential Base URL for others). Qwen-only options (`enable_search`, `enable_thinking`, `thinking_budget`) are sent only when set.
 
-_By the time users are looking for community nodes, they probably already know n8n basics. But if you expect new users, you can link to the [Try it out](https://docs.n8n.io/try-it-out/) documentation to help them get started._
+Token usage: n8n's own tracing keeps only prompt/completion counts, so each generation's `generationInfo` also carries
+- `usage`: the provider's raw usage (incl. `prompt_tokens_details.cached_tokens`, `completion_tokens_details.reasoning_tokens`), also on streamed responses;
+- `promptCache`: prompt-cache summary (`promptTokens`, `cachedTokens`, `uncachedTokens`, ...), non-streamed responses only.
+
+These are stored in the saved execution data, so tools reading executions (e.g. azbot-llm-router's agent token backfill) can price cached/reasoning tokens.
 
 ## Resources
 

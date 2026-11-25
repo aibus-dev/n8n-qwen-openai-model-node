@@ -457,6 +457,7 @@ export class OpenAIChatModel extends BaseChatModel<OpenAIChatModelConfig> {
 				id: body.id,
 				finish_reason: choice.finish_reason,
 				...(body.usage && { promptCache: promptCacheMetadata(body.usage) }),
+				...(body.usage && { usage: body.usage }),
 			},
 		};
 	}
@@ -572,6 +573,7 @@ export class OpenAIChatModel extends BaseChatModel<OpenAIChatModelConfig> {
 			type: 'finish',
 			finishReason: mapFinishReason(finishReason),
 			usage: parseTokenUsage(usage),
+			...(usage && { providerMetadata: { usage } }),
 		};
 	}
 }

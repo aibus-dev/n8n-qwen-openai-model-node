@@ -320,7 +320,6 @@ function mapFinishReason(finishReason: string | null): FinishReason {
 }
 
 export interface OpenAIChatModelConfig extends ChatModelConfig {
-	apiKey?: string;
 	baseURL?: string;
 
 	providerTools?: ProviderTool[];
